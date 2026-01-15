@@ -1,0 +1,164 @@
+# Cline Rules for terraform-provider-combell
+
+## Project Overview
+
+This is a Terraform provider for the Combell API (v2), written in Go. The provider manages DNS records and domains through the Combell hosting platform.
+
+- **Language**: Go 1.18+
+- **Framework**: HashiCorp Terraform Plugin Framework
+- **API**: Combell API v2 with HMAC authentication
+- **Repository**: github.com/io-veeblefetzer/terraform-provider-combell
+
+## Code Guidelines
+
+### Go Best Practices
+
+- Follow idiomatic Go patterns and conventions
+- Use `gofmt` and `golint` for code formatting
+- Handle errors explicitly - never ignore errors
+- Use meaningful variable and function names
+- Write table-driven tests where applicable
+- Document exported functions and types
+
+### Terraform Provider Conventions
+
+- Follow HashiCorp's Terraform Plugin Framework patterns
+- Resources should implement full CRUD lifecycle
+- Data sources should be read-only
+- Use proper schema validation (validators, plan modifiers)
+- Implement import functionality for all resources
+- Handle API rate limiting with exponential backoff
+
+### Project Structure
+
+Follow the structure defined in `SPEC-TERRAFORM-PROVIDER-COMBELL.md`:
+
+```
+internal/
+├── provider/     # Provider configuration
+├── client/       # HTTP client with HMAC auth
+└── resources/    # Resource and data source implementations
+    ├── dns_record/
+    └── domain/
+```
+
+## Git Workflow
+
+### Commit Messages
+
+**All commit messages MUST follow the Conventional Commits specification.**
+
+Format: `<type>(<scope>): <description> (#<issue>)`
+
+#### Types
+
+- `feat`: New feature or functionality
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, no logic change)
+- `refactor`: Code refactoring without feature changes
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks, dependencies, tooling
+- `ci`: CI/CD configuration changes
+- `perf`: Performance improvements
+
+#### Scope (optional but recommended)
+
+- `provider`: Provider configuration
+- `client`: API client and authentication
+- `dns`: DNS record resources/data sources
+- `domain`: Domain resources/data sources
+- `docs`: Documentation
+- `deps`: Dependencies
+
+#### GitHub Issue Reference
+
+**Every commit MUST reference a GitHub issue.** Use one of these formats:
+
+- `#123` - References issue 123
+- `Fixes #123` - Closes issue 123 when merged
+- `Closes #123` - Closes issue 123 when merged
+- `Resolves #123` - Closes issue 123 when merged
+
+#### Examples
+
+```
+feat(dns): implement DNS record resource CRUD operations (#12)
+fix(client): handle rate limiting with exponential backoff (#45)
+docs(readme): add installation and usage examples (#23)
+test(dns): add acceptance tests for DNS record creation (#34)
+refactor(provider): extract common validation logic (#56)
+chore(deps): update terraform-plugin-framework to v1.4.0 (#78)
+```
+
+### Branches
+
+- `main` - Production-ready code
+- `feat/<issue>-<description>` - Feature branches
+- `fix/<issue>-<description>` - Bug fix branches
+
+## Testing
+
+### Required Tests
+
+- Unit tests for HMAC signature generation
+- Unit tests for request/response serialization
+- Acceptance tests for all resources and data sources
+- Import tests for importable resources
+
+### Running Tests
+
+```bash
+# Unit tests
+go test ./...
+
+# Acceptance tests (requires API credentials)
+export COMBELL_API_KEY="your-key"
+export COMBELL_API_SECRET="your-secret"
+export TF_ACC=1
+go test ./... -v
+```
+
+## API Client Guidelines
+
+### Authentication
+
+- Implement HMAC authentication as per Combell API docs
+- Never log or expose API secrets
+- Use environment variables for credentials
+
+### Error Handling
+
+- Parse API error responses and return meaningful errors
+- Handle 429 (rate limit) with retry and backoff
+- Detect resource drift on 404 responses
+
+### Rate Limiting
+
+- Respect `X-RateLimit-*` headers
+- Implement automatic retry with `Retry-After` header
+
+## Documentation
+
+- Update `docs/` for any resource/data source changes
+- Keep `SPEC-TERRAFORM-PROVIDER-COMBELL.md` in sync
+- Include examples in `examples/` directory
+- Write clear HCL examples with comments
+
+## Dependencies
+
+When adding dependencies:
+- Prefer standard library where possible
+- Use official HashiCorp libraries for Terraform integration
+- Keep `go.mod` minimal and well-maintained
+- Run `go mod tidy` after changes
+
+## AI Assistant Notes
+
+When working on this project:
+
+1. **Always check the spec first**: Read `SPEC-TERRAFORM-PROVIDER-COMBELL.md` for detailed requirements
+2. **Reference the OpenAPI spec**: Use `resources/combell-openapi-spec.json` for API details
+3. **Follow the phases**: Implementation should follow the phases defined in the spec
+4. **Test before committing**: Ensure code compiles and passes tests
+5. **Create issues first**: For new work, ensure a GitHub issue exists before implementation
