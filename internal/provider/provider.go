@@ -139,7 +139,7 @@ func (p *CombellProvider) Configure(ctx context.Context, req provider.ConfigureR
 // DataSources defines the data sources implemented in the provider.
 func (p *CombellProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		// Will be populated in Phase 2 and 3
+		dns_record.NewDNSRecordDataSource,
 	}
 }
 

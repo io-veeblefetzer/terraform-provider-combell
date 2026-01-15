@@ -7,6 +7,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -76,6 +77,70 @@ func TestDNSRecordResource_Schema(t *testing.T) {
 
 	// Verify computed attributes
 	computedAttrs := []string{"id"}
+	for _, attr := range computedAttrs {
+		a, ok := schema.Attributes[attr]
+		if !ok {
+			t.Errorf("Schema missing computed attribute: %s", attr)
+			continue
+		}
+		if !a.IsComputed() {
+			t.Errorf("Attribute %s should be computed", attr)
+		}
+	}
+}
+
+func TestNewDNSRecordDataSource(t *testing.T) {
+	d := NewDNSRecordDataSource()
+	if d == nil {
+		t.Fatal("NewDNSRecordDataSource() returned nil")
+	}
+}
+
+func TestDNSRecordDataSource_Metadata(t *testing.T) {
+	d := &DNSRecordDataSource{}
+
+	req := datasource.MetadataRequest{
+		ProviderTypeName: "combell",
+	}
+	resp := &datasource.MetadataResponse{}
+
+	d.Metadata(context.Background(), req, resp)
+
+	expected := "combell_dns_record"
+	if resp.TypeName != expected {
+		t.Errorf("Metadata() TypeName = %s, want %s", resp.TypeName, expected)
+	}
+}
+
+func TestDNSRecordDataSource_Schema(t *testing.T) {
+	d := &DNSRecordDataSource{}
+
+	req := datasource.SchemaRequest{}
+	resp := &datasource.SchemaResponse{}
+
+	d.Schema(context.Background(), req, resp)
+
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("Schema() returned errors: %v", resp.Diagnostics)
+	}
+
+	schema := resp.Schema
+
+	// Verify required attributes
+	requiredAttrs := []string{"id", "domain_name"}
+	for _, attr := range requiredAttrs {
+		a, ok := schema.Attributes[attr]
+		if !ok {
+			t.Errorf("Schema missing required attribute: %s", attr)
+			continue
+		}
+		if !a.IsRequired() {
+			t.Errorf("Attribute %s should be required", attr)
+		}
+	}
+
+	// Verify computed attributes
+	computedAttrs := []string{"type", "record_name", "ttl", "content", "priority", "service", "weight", "target", "protocol", "port"}
 	for _, attr := range computedAttrs {
 		a, ok := schema.Attributes[attr]
 		if !ok {
