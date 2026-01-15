@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/io-veeblefetzer/terraform-provider-combell/internal/client"
+	"github.com/io-veeblefetzer/terraform-provider-combell/internal/resources/dns_record"
 )
 
 // Ensure CombellProvider satisfies various provider interfaces.
@@ -145,7 +146,7 @@ func (p *CombellProvider) DataSources(ctx context.Context) []func() datasource.D
 // Resources defines the resources implemented in the provider.
 func (p *CombellProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		// Will be populated in Phase 2 and 3
+		dns_record.NewDNSRecordResource,
 	}
 }
 
