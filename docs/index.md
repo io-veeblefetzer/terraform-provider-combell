@@ -9,18 +9,13 @@ description: |-
 
 The Combell provider enables Terraform to manage resources in your Combell hosting account via the [Combell API v2](https://api.combell.com/v2/documentation).
 
-## Features
-
-- **DNS Records**: Create, read, update, and delete DNS records for your domains
-- **Domains**: Query domain information and manage domain settings
-
 ## Example Usage
 
-```hcl
+```terraform
 terraform {
   required_providers {
     combell = {
-      source  = "veeblefetzer/combell"
+      source  = "io-veeblefetzer/combell"
       version = "~> 0.1"
     }
   }
@@ -28,33 +23,41 @@ terraform {
 
 # Configure the Combell provider
 provider "combell" {
-  api_key    = var.combell_api_key
-  api_secret = var.combell_api_secret
+  # Credentials can be provided here or via environment variables
+  # api_key    = "your-api-key"      # Or set COMBELL_API_KEY
+  # api_secret = "your-api-secret"   # Or set COMBELL_API_SECRET
 }
 ```
 
 ## Authentication
 
-The Combell provider uses HMAC authentication. You need to provide your API key and secret, which can be obtained from the Combell control panel.
+The provider uses HMAC authentication. You need to obtain your API key and secret from the [Combell control panel](https://my.combell.com).
 
-### Configuration
+### Credentials via Environment Variables
 
-Credentials can be provided in the provider configuration or via environment variables:
+The recommended approach is to set credentials via environment variables:
 
-```hcl
+```bash
+export COMBELL_API_KEY="your-api-key"
+export COMBELL_API_SECRET="your-api-secret"
+```
+
+### Credentials via Provider Configuration
+
+Alternatively, you can set credentials directly in the provider configuration:
+
+```terraform
 provider "combell" {
   api_key    = "your-api-key"
   api_secret = "your-api-secret"
 }
 ```
 
-### Environment Variables
+~> **Warning:** Hardcoding credentials in Terraform configuration is not recommended. Use environment variables or a secrets management system instead.
 
-| Variable | Description |
-|----------|-------------|
-| `COMBELL_API_KEY` | API key for authentication |
-| `COMBELL_API_SECRET` | API secret for HMAC signature |
-| `COMBELL_BASE_URL` | Optional API base URL override |
+### IP Whitelisting
+
+Access to the Combell API is restricted by IP address by default. You need to whitelist your IP address in the Combell control panel before you can use the API.
 
 ## Schema
 
@@ -62,4 +65,4 @@ provider "combell" {
 
 - `api_key` (String, Sensitive) - API key from Combell control panel. Can also be set via `COMBELL_API_KEY` environment variable.
 - `api_secret` (String, Sensitive) - API secret from Combell control panel. Can also be set via `COMBELL_API_SECRET` environment variable.
-- `base_url` (String) - API base URL. Defaults to `https://api.combell.com/v2`.
+- `base_url` (String) - API base URL. Defaults to `https://api.combell.com/v2`. Can also be set via `COMBELL_BASE_URL` environment variable.
